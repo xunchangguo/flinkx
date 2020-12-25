@@ -216,6 +216,9 @@ public class JdbcOutputFormat extends BaseRichOutputFormat {
                         object = null;
                     }
                 }
+                if(column != null && index >= column.size()) {
+                    break;
+                }
                 preparedStatement.setObject(index+1, object);
             }
 
@@ -253,6 +256,9 @@ public class JdbcOutputFormat extends BaseRichOutputFormat {
                         if(!STRING_TYPES.contains(columnType.get(index))){
                             object = null;
                         }
+                    }
+                    if(column != null && index >= column.size()) {
+                        break;
                     }
                     preparedStatement.setObject(index+1, object);
                 }

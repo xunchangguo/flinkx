@@ -20,10 +20,13 @@ package com.dtstack.flinkx.binlog.reader;
 import com.alibaba.otter.canal.common.AbstractCanalLifeCycle;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.sink.exception.CanalSinkException;
+import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.util.SnowflakeIdWorker;
 import com.dtstack.flinkx.log.DtLogger;
 import com.dtstack.flinkx.util.ExceptionUtil;
+import com.dtstack.flinkx.util.StringUtil;
 import com.google.gson.Gson;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +105,8 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             return;
         }
 
+        List<MetaColumn> metaColumns = format.getMetaColumns();
+
         for(CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
             Map<String,Object> message = new HashMap<>(8);
             message.put("type", eventType.toString());
@@ -123,7 +128,20 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             }
 
             try {
-                queue.put(Row.of(message));
+                Row row;
+                if(CollectionUtils.isEmpty(metaColumns)){
+                    row = Row.of(message);
+                }else{
+                    row = new Row(metaColumns.size());
+                    for (int i = 0; i < metaColumns.size(); i++) {
+                        MetaColumn metaColumn = metaColumns.get(i);
+                        Object value = message.get(metaColumn.getName());
+                        Object obj = StringUtil.string2col(String.valueOf(value), metaColumn.getType(), metaColumn.getTimeFormat());
+                        row.setField(i , obj);
+                    }
+                }
+                queue.put(row);
+                //queue.put(Row.of(message));
             } catch (InterruptedException e) {
                 LOG.error("takeEvent interrupted message:{} error:{}", message, e);
             }

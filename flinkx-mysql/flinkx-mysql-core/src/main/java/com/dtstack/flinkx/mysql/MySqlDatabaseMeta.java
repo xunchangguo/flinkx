@@ -21,6 +21,7 @@ package com.dtstack.flinkx.mysql;
 import com.dtstack.flinkx.enums.EDatabaseType;
 import com.dtstack.flinkx.rdb.BaseDatabaseMeta;
 import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,14 @@ import java.util.Map;
  * @author huyifan.zju@163.com
  */
 public class MySqlDatabaseMeta extends BaseDatabaseMeta {
+    private String removePrefix = null;
+
+    public MySqlDatabaseMeta() {
+    }
+
+    public MySqlDatabaseMeta(String removePrefix) {
+        this.removePrefix = removePrefix;
+    }
 
     @Override
     public EDatabaseType getDatabaseType() {
@@ -82,6 +91,18 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta {
                 + makeValues(column.size())
                 + " ON DUPLICATE KEY UPDATE "
                 + makeUpdatePart(column);
+    }
+
+    @Override
+    public String quoteColumn(String column) {
+        if(StringUtils.isNotEmpty(removePrefix)) {
+            StringBuilder sb = new StringBuilder(getStartQuote());
+            sb.append(StringUtils.removeStart(column, removePrefix));
+            sb.append(getEndQuote());
+            return sb.toString();
+        } else {
+            return super.quoteColumn(column);
+        }
     }
 
     private String makeUpdatePart (List<String> column) {

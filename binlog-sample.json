@@ -1,0 +1,105 @@
+{
+  "job" : {
+    "content" : [ {
+      "reader" : {
+        "parameter" : {
+          "schema" : "test",
+          "password" : "xxx",
+          "cat" : "insert,delete,update",
+          "jdbcUrl" : "jdbc:mysql://10.222.5.114:3306/test",
+          "host" : "10.222.5.114",
+          "start" : {
+          },
+          "table" : [ "test" ],
+          "pavingData" : true,
+          "username" : "xxx",
+          "column": [
+            {
+              "name": "after_name",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "after_channel",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "after_pv",
+              "type": "BIGINT"
+            },
+            {
+              "name": "after_ID",
+              "type": "BIGINT"
+            },
+            {
+              "name": "type",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "table",
+              "type": "VARCHAR"
+            }
+          ]
+        },
+        "name" : "binlogreader"
+      },
+      "writer": {
+        "name": "mysqlwriter",
+        "parameter": {
+          "username": "xxx",
+          "password": "xxx",
+          "batchSize": 1,
+          "connection": [
+            {
+              "jdbcUrl": "jdbc:mysql://10.222.5.114:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8",
+              "table": [
+                "test_new"
+              ]
+            }
+          ],
+          "session": [],
+          "preSql": [],
+          "postSql": [],
+          "writeMode": "replace",
+          "removeColumnPrefix": "after_",
+          "updateKey": {"key": ["ID"]},
+          "column": [
+            {
+              "name": "name",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "channel",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "pv",
+              "type": "BIGINT"
+            },
+            {
+              "name": "ID",
+              "type": "BIGINT"
+            }
+          ]
+        }
+      }
+    } ],
+    "setting" : {
+      "restore" : {
+        "isRestore" : false,
+        "isStream" : true
+      },
+      "errorLimit" : { },
+      "speed" : {
+        "bytes" : 0,
+        "channel" : 1
+      },
+      "log" : {
+        "isLogger": false,
+        "level" : "trace",
+        "path" : "",
+        "pattern":""
+      }
+    }
+  }
+}
+

@@ -23,6 +23,7 @@ import com.alibaba.otter.canal.parse.support.AuthenticationInfo;
 import com.alibaba.otter.canal.protocol.position.EntryPosition;
 import com.dtstack.flinkx.binlog.BinlogJournalValidator;
 import com.dtstack.flinkx.inputformat.BaseRichInputFormat;
+import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.restore.FormatState;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +49,8 @@ public class BinlogInputFormat extends BaseRichInputFormat {
     private static final Logger LOG = LoggerFactory.getLogger(BinlogInputFormat.class);
 
     private BinlogConfig binlogConfig;
+
+    private List<MetaColumn> metaColumns;
 
     private volatile EntryPosition entryPosition;
 
@@ -244,5 +247,13 @@ public class BinlogInputFormat extends BaseRichInputFormat {
 
     public void setBinlogConfig(BinlogConfig binlogConfig) {
         this.binlogConfig = binlogConfig;
+    }
+
+    public List<MetaColumn> getMetaColumns() {
+        return metaColumns;
+    }
+
+    public void setMetaColumns(List<MetaColumn> metaColumns) {
+        this.metaColumns = metaColumns;
     }
 }
