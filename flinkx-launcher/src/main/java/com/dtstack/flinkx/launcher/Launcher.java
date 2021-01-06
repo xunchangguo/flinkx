@@ -67,7 +67,7 @@ public class Launcher {
     public static final String MAIN_CLASS = "com.dtstack.flinkx.Main";
 
     public static void main(String[] args) throws Exception {
-        setLogLevel(Level.DEBUG.toString());
+        setLogLevel(Level.INFO.toString());
         OptionParser optionParser = new OptionParser(args);
         Options launcherOptions = optionParser.getOptions();
         findDefaultConfigDir(launcherOptions);
