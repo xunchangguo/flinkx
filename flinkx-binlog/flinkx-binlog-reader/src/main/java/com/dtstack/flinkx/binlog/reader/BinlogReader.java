@@ -21,9 +21,12 @@ import com.dtstack.flinkx.binlog.format.BinlogInputFormatBuilder;
 import com.dtstack.flinkx.config.DataTransferConfig;
 import com.dtstack.flinkx.config.ReaderConfig;
 import com.dtstack.flinkx.reader.BaseDataReader;
+import com.dtstack.flinkx.reader.MetaColumn;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.types.Row;
+
+import java.util.List;
 
 /**
  * @company: www.dtstack.com
@@ -33,6 +36,8 @@ import org.apache.flink.types.Row;
 public class BinlogReader extends BaseDataReader {
 
     private BinlogConfig binlogConfig;
+    //
+    private List<MetaColumn> metaColumns;
 
     @SuppressWarnings("unchecked")
     public BinlogReader(DataTransferConfig config, StreamExecutionEnvironment env) {
@@ -41,6 +46,7 @@ public class BinlogReader extends BaseDataReader {
 
         try {
             binlogConfig = objectMapper.readValue(objectMapper.writeValueAsString(readerConfig.getParameter().getAll()), BinlogConfig.class);
+            metaColumns = MetaColumn.getMetaColumns(readerConfig.getParameter().getColumn());
         } catch (Exception e) {
             throw new RuntimeException("解析binlog Config配置出错:", e);
         }
@@ -48,13 +54,13 @@ public class BinlogReader extends BaseDataReader {
 
     @Override
     public DataStream<Row> readData() {
-
         BinlogInputFormatBuilder builder = new BinlogInputFormatBuilder();
         builder.setDataTransferConfig(dataTransferConfig);
         builder.setBinlogConfig(binlogConfig);
         builder.setRestoreConfig(restoreConfig);
         builder.setLogConfig(logConfig);
         builder.setTestConfig(testConfig);
+        builder.setMetaColumns(metaColumns);
         return createInput(builder.finish());
     }
 

@@ -22,9 +22,12 @@ import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.sink.exception.CanalSinkException;
 import com.dtstack.flinkx.binlog.format.BinlogInputFormat;
 import com.dtstack.flinkx.log.DtLogger;
+import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.util.ExceptionUtil;
 import com.dtstack.flinkx.util.GsonUtil;
 import com.dtstack.flinkx.util.SnowflakeIdWorker;
+import com.dtstack.flinkx.util.StringUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +165,19 @@ public class BinlogEventSink extends AbstractCanalLifeCycle implements com.aliba
             if(map.size() == 1 && map.containsKey("e")){
                 throw new RuntimeException((String) map.get("e"));
             }else{
-                row = Row.of(map);
+                List<MetaColumn> metaColumns = format.getMetaColumns();
+                if(CollectionUtils.isEmpty(metaColumns)){
+                    row = Row.of(map);
+                }else{
+                    row = new Row(metaColumns.size());
+                    for (int i = 0; i < metaColumns.size(); i++) {
+                        MetaColumn metaColumn = metaColumns.get(i);
+                        Object value = map.get(metaColumn.getName());
+                        Object obj = StringUtil.string2col(String.valueOf(value), metaColumn.getType(), metaColumn.getTimeFormat());
+                        row.setField(i , obj);
+                    }
+                }
+//                row = Row.of(map);
             }
         } catch (InterruptedException e) {
             LOG.error("takeEvent interrupted error:{}", ExceptionUtil.getErrorMessage(e));

@@ -29,6 +29,7 @@ import com.dtstack.flinkx.binlog.listener.BinlogEventSink;
 import com.dtstack.flinkx.binlog.listener.BinlogPositionManager;
 import com.dtstack.flinkx.binlog.listener.HeartBeatController;
 import com.dtstack.flinkx.inputformat.BaseRichInputFormat;
+import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.restore.FormatState;
 import com.dtstack.flinkx.util.ClassUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,6 +60,8 @@ public class BinlogInputFormat extends BaseRichInputFormat {
     private final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
     private BinlogConfig binlogConfig;
+
+    private List<MetaColumn> metaColumns;
 
     private volatile EntryPosition entryPosition;
 
@@ -270,5 +273,13 @@ public class BinlogInputFormat extends BaseRichInputFormat {
         } else {
             return stringBuilder.append(schemaName).append(SCHEMA_SPLIT).append(tableName).toString();
         }
+    }
+
+    public List<MetaColumn> getMetaColumns() {
+        return metaColumns;
+    }
+
+    public void setMetaColumns(List<MetaColumn> metaColumns) {
+        this.metaColumns = metaColumns;
     }
 }

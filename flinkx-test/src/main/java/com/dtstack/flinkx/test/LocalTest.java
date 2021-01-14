@@ -76,6 +76,7 @@ import com.dtstack.flinkx.reader.BaseDataReader;
 import com.dtstack.flinkx.redis.writer.RedisWriter;
 import com.dtstack.flinkx.sqlserver.reader.SqlserverReader;
 import com.dtstack.flinkx.sqlserver.writer.SqlserverWriter;
+import com.dtstack.flinkx.sqlservercdc.reader.SqlservercdcReader;
 import com.dtstack.flinkx.stream.reader.StreamReader;
 import com.dtstack.flinkx.stream.writer.StreamWriter;
 import com.dtstack.flinkx.util.ResultPrintUtil;
@@ -200,6 +201,7 @@ public class LocalTest {
             case PluginNameConstants.ORACLE_READER : reader = new OracleReader(config, env); break;
             case PluginNameConstants.POSTGRESQL_READER : reader = new PostgresqlReader(config, env); break;
             case PluginNameConstants.SQLSERVER_READER : reader = new SqlserverReader(config, env); break;
+            case PluginNameConstants.SQLSERVER_CDC_READER : reader = new SqlservercdcReader(config, env); break;
             case PluginNameConstants.MYSQLD_READER : reader = new MysqldReader(config, env); break;
             case PluginNameConstants.MYSQL_READER : reader = new MysqlReader(config, env); break;
             case PluginNameConstants.DB2_READER : reader = new Db2Reader(config, env); break;

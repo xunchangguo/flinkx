@@ -21,6 +21,7 @@ import com.dtstack.flinkx.binlog.BinlogUtil;
 import com.dtstack.flinkx.binlog.reader.BinlogConfig;
 import com.dtstack.flinkx.config.SpeedConfig;
 import com.dtstack.flinkx.inputformat.BaseRichInputFormatBuilder;
+import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.util.ClassUtil;
 import com.dtstack.flinkx.util.ExceptionUtil;
 import com.dtstack.flinkx.util.GsonUtil;
@@ -59,6 +60,10 @@ public class BinlogInputFormatBuilder extends BaseRichInputFormatBuilder {
 
     public void setBinlogConfig(BinlogConfig binlogConfig) {
         this.format.setBinlogConfig(binlogConfig);
+    }
+
+    public void setMetaColumns(List<MetaColumn> metaColumns) {
+        this.format.setMetaColumns(metaColumns);
     }
 
     @Override

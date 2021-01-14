@@ -19,6 +19,7 @@
 package com.dtstack.flinkx.mysql.writer;
 
 import com.dtstack.flinkx.config.DataTransferConfig;
+import com.dtstack.flinkx.config.WriterConfig;
 import com.dtstack.flinkx.mysql.MySqlDatabaseMeta;
 import com.dtstack.flinkx.mysql.format.MysqlOutputFormat;
 import com.dtstack.flinkx.rdb.datawriter.JdbcDataWriter;
@@ -34,10 +35,12 @@ import java.util.Collections;
  * @author huyifan.zju@163.com
  */
 public class MysqlWriter extends JdbcDataWriter {
+    public static final String KEY_REMOVE_COLUMN_PREFIX = "removeColumnPrefix";
 
     public MysqlWriter(DataTransferConfig config) {
         super(config);
-        setDatabaseInterface(new MySqlDatabaseMeta());
+        WriterConfig writerConfig = config.getJob().getContent().get(0).getWriter();
+        setDatabaseInterface(new MySqlDatabaseMeta(writerConfig.getParameter().getStringVal(KEY_REMOVE_COLUMN_PREFIX)));
         dbUrl = DbUtil.formatJdbcUrl(dbUrl, Collections.singletonMap("zeroDateTimeBehavior", "convertToNull"));
     }
 

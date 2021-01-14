@@ -1,0 +1,81 @@
+{
+  "job" : {
+    "content" : [ {
+      "reader" : {
+        "parameter" : {
+          "username" : "sa",
+          "password" : "xxx",
+          "url" : "jdbc:jtds:sqlserver://10.88.0.227:1433;DatabaseName=DemoData",
+          "databaseName" : "DemoData",
+          "tableList" : [
+            "dbo.Products"
+          ],
+          "cat" : "insert,update,delete",
+          "pavingData" : true,
+          "column": [
+            {
+              "name": "after_ProductName",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "after_ID",
+              "type": "VARCHAR"
+            }
+          ],
+          "pollInterval" : 5000
+        },
+        "name" : "sqlservercdcreader"
+      },
+      "writer": {
+        "name": "mysqlwriter",
+        "parameter": {
+          "username": "xxx",
+          "password": "xxx",
+          "batchSize": 1,
+          "connection": [
+            {
+              "jdbcUrl": "jdbc:mysql://10.222.5.114:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8",
+              "table": [
+                "product"
+              ]
+            }
+          ],
+          "session": [],
+          "preSql": [],
+          "postSql": [],
+          "writeMode": "replace",
+          "removeColumnPrefix": "after_",
+          "updateKey": {"key": ["ID"]},
+          "column": [
+            {
+              "name": "ProductName",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "ID",
+              "type": "BIGINT"
+            }
+          ]
+        }
+      }
+    } ],
+    "setting" : {
+      "restore" : {
+        "isRestore" : false,
+        "isStream" : true
+      },
+      "errorLimit" : { },
+      "speed" : {
+        "bytes" : 0,
+        "channel" : 1
+      },
+      "log" : {
+        "isLogger": false,
+        "level" : "trace",
+        "path" : "",
+        "pattern":""
+      }
+    }
+  }
+}
+
