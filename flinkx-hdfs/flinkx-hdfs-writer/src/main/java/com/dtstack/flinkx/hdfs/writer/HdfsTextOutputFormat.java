@@ -23,11 +23,17 @@ import com.dtstack.flinkx.exception.WriteRecordException;
 import com.dtstack.flinkx.hdfs.ECompressType;
 import com.dtstack.flinkx.hdfs.HdfsUtil;
 import com.dtstack.flinkx.util.DateUtil;
+import com.dtstack.flinkx.util.GsonUtil;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.flink.types.Row;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.common.type.HiveDecimal;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -35,6 +41,8 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The builder class of HdfsOutputFormat writing text files
@@ -93,6 +101,9 @@ public class HdfsTextOutputFormat extends BaseHdfsOutputFormat {
                     stream = new GzipCompressorOutputStream(fs.create(p));
                 } else if(compressType == ECompressType.TEXT_BZIP2){
                     stream = new BZip2CompressorOutputStream(fs.create(p));
+                } else if (compressType == ECompressType.TEXT_LZO) {
+                    CompressionCodecFactory factory = new CompressionCodecFactory(new Configuration());
+                    stream = factory.getCodecByClassName("com.hadoop.compression.lzo.LzopCodec").createOutputStream(fs.create(p));
                 }
             }
 
@@ -200,6 +211,8 @@ public class HdfsTextOutputFormat extends BaseHdfsOutputFormat {
                     if (column instanceof Timestamp){
                         SimpleDateFormat fm = DateUtil.getDateTimeFormatter();
                         sb.append(fm.format(column));
+                    }else if (column instanceof Map || column instanceof List){
+                        sb.append(gson.toJson(column));
                     }else {
                         sb.append(rowData);
                     }
