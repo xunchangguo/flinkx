@@ -4,15 +4,15 @@
       "reader" : {
         "parameter" : {
           "schema" : "test",
-          "password" : "xxx",
+          "password" : "cfsc@2020",
           "cat" : "insert,delete,update",
-          "jdbcUrl" : "jdbc:mysql://10.222.5.114:3306/test",
-          "host" : "10.222.5.114",
+          "jdbcUrl" : "jdbc:mysql://127.0.0.1:3306/test",
+          "host" : "127.0.0.1",
           "start" : {
           },
           "table" : [ "test" ],
           "pavingData" : true,
-          "username" : "xxx",
+          "username" : "root",
           "column": [
             {
               "name": "after_name",
@@ -45,12 +45,12 @@
       "writer": {
         "name": "mysqlwriter",
         "parameter": {
-          "username": "xxx",
-          "password": "xxx",
+          "username": "root",
+          "password": "cfsc@2020",
           "batchSize": 1,
           "connection": [
             {
-              "jdbcUrl": "jdbc:mysql://10.222.5.114:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8",
+              "jdbcUrl": "jdbc:mysql://127.0.0.1:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8",
               "table": [
                 "test_new"
               ]
