@@ -32,11 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Date: 2019/11/21
@@ -115,6 +111,23 @@ public class KafkaBaseOutputFormat extends BaseRichOutputFormat {
             }
             throw new WriteRecordException(errorMessage, e);
         }
+    }
+
+    protected Row setChannelInfo(Row row){
+        int arity = row.getArity();
+        if(arity == 1) {
+            Object field = row.getField(0);
+            if(field instanceof Map) {
+                Map<String, Object> data = (Map<String, Object>) field;
+                Row internalRow = new Row(data.size());
+                int i = 0;
+                for(Object val : data.values()) {
+                    internalRow.setField(i ++, val);
+                }
+                return internalRow;
+            }
+        }
+        return super.setChannelInfo(row);
     }
 
     protected void emit(Map event) throws IOException {

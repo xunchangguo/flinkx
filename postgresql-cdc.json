@@ -1,0 +1,53 @@
+{
+  "job" : {
+    "content" : [ {
+      "reader" : {
+        "parameter" : {
+          "pluginName" : "pgoutput",
+          "hostname" : "10.88.0.227",
+          "port" : 5432,
+          "username" : "postgres",
+          "password" : "xxx",
+          "database-name" : "postgres",
+          "table-names" : ["public.product", "public.product_1"],
+          "schemas" : ["public"],
+          "properties" : {
+            "snapshot.mode": "initial"
+          }
+        },
+        "name" : "postgresqlcdcreader"
+      },
+      "writer": {
+        "parameter": {
+          "timezone": "UTC",
+          "topic": "test01",
+          "producerSettings": {
+            "bootstrap.servers" : "10.88.0.227:9093",
+            "group.id" : "test",
+            "client.id": "test-client"
+          },
+          "tableFields": ["op","source_db","source_schema","source_table","ts_ms","data"]
+        },
+        "name": "kafkawriter"
+      }
+    } ],
+    "setting" : {
+      "restore" : {
+        "isRestore" : false,
+        "isStream" : true
+      },
+      "errorLimit" : { },
+      "speed" : {
+        "bytes" : 0,
+        "channel" : 1
+      },
+      "log" : {
+        "isLogger": false,
+        "level" : "info",
+        "path" : "",
+        "pattern":""
+      }
+    }
+  }
+}
+

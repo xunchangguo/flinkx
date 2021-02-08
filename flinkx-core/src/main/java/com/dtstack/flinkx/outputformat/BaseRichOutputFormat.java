@@ -458,7 +458,7 @@ public abstract class BaseRichOutputFormat extends org.apache.flink.api.common.i
         }
     }
 
-    private Row setChannelInfo(Row row){
+    protected Row setChannelInfo(Row row){
         Row internalRow = new Row(row.getArity() - 1);
         for (int i = 0; i < internalRow.getArity(); i++) {
             internalRow.setField(i, row.getField(i));
