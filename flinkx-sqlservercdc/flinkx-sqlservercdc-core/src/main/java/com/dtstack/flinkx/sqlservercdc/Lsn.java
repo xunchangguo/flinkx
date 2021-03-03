@@ -9,6 +9,15 @@ import com.dtstack.flinkx.util.StringUtil;
 
 import java.util.Arrays;
 
+/**
+ * Date: 2019/12/03
+ * Company: www.dtstack.com
+ * <p>
+ * this class is copied from (https://github.com/debezium/debezium).
+ * but there are some different from the origin.
+ *
+ * @author tudou
+ */
 public class Lsn implements Comparable<Lsn> {
 
     private static final String NULL_STRING = "NULL";
@@ -24,16 +33,10 @@ public class Lsn implements Comparable<Lsn> {
         this.binary = binary;
     }
 
-    /**
-     * @return binary representation of the stored LSN
-     */
     public byte[] getBinary() {
         return binary;
     }
 
-    /**
-     * @return true if this is a real LSN or false it it is {@code NULL}
-     */
     public boolean isAvailable() {
         return binary != null;
     }
@@ -50,10 +53,6 @@ public class Lsn implements Comparable<Lsn> {
         return unsignedBinary;
     }
 
-
-   /**
-     * @return textual representation of the stored LSN
-     */
     @Override
     public String toString() {
         if (string != null) {
@@ -63,7 +62,12 @@ public class Lsn implements Comparable<Lsn> {
         if (binary == null) {
             return NULL_STRING;
         }
+
         final int[] unsigned = getUnsignedBinary();
+        if (null == unsigned) {
+            return NULL_STRING;
+        }
+
         for (int i = 0; i < unsigned.length; i++) {
             final String byteStr = Integer.toHexString(unsigned[i]);
             if (byteStr.length() == 1) {
@@ -78,18 +82,10 @@ public class Lsn implements Comparable<Lsn> {
         return string;
     }
 
-    /**
-     * @param lsnString - textual representation of Lsn
-     * @return LSN converted from its textual representation
-     */
     public static Lsn valueOf(String lsnString) {
         return (lsnString == null || NULL_STRING.equals(lsnString)) ? NULL : new Lsn(StringUtil.hexStringToByteArray(lsnString.replace(":", "")));
     }
 
-    /**
-     * @param lsnBinary - binary representation of Lsn
-     * @return LSN converted from its binary representation
-     */
     public static Lsn valueOf(byte[] lsnBinary) {
         return (lsnBinary == null) ? NULL : new Lsn(lsnBinary);
     }
@@ -120,42 +116,30 @@ public class Lsn implements Comparable<Lsn> {
         return true;
     }
 
-    /**
-     * Enables ordering of LSNs. The {@code NULL} LSN is always the smallest one.
-     */
     @Override
     public int compareTo(Lsn o) {
         if (this == o) {
             return 0;
         }
-        if (!this.isAvailable()) {
-            if (!o.isAvailable()) {
-                return 0;
-            }
-            return -1;
+
+        if (!this.isAvailable() || !o.isAvailable()) {
+            throw new IllegalArgumentException("object can not be null!");
         }
-        if (!o.isAvailable()) {
-            return 1;
-        }
+
         final int[] thisU = getUnsignedBinary();
         final int[] thatU = o.getUnsignedBinary();
-        for (int i = 0; i < thisU.length; i++) {
-            final int diff = thisU[i] - thatU[i];
-            if (diff != 0) {
-                return diff;
+        if(null != thisU && null != thatU){
+            for (int i = 0; i < thisU.length; i++) {
+                final int diff = thisU[i] - thatU[i];
+                if (diff != 0) {
+                    return diff;
+                }
             }
         }
+
         return 0;
     }
 
-    /**
-     * Verifies whether the LSN falls into a LSN interval
-     *
-     * @param from start of the interval (included)
-     * @param to end of the interval (excluded)
-     *
-     * @return true if the LSN falls into the interval
-     */
     public boolean isBetween(Lsn from, Lsn to) {
         return this.compareTo(from) >= 0 && this.compareTo(to) < 0;
     }

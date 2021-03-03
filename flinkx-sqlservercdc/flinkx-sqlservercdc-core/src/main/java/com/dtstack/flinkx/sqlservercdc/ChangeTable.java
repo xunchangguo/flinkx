@@ -8,34 +8,67 @@ package com.dtstack.flinkx.sqlservercdc;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Date: 2019/12/03
+ * Company: www.dtstack.com
+ * <p>
+ * this class is copied from (https://github.com/debezium/debezium).
+ * but there are some different from the origin.
+ *
+ * @author tudou
+ */
 public class ChangeTable {
 
+    private static final String CDC_SCHEMA = "cdc";
     private final String captureInstance;
     private final TableId sourceTableId;
     private final TableId changeTableId;
+    private final Lsn startLsn;
+    private Lsn stopLsn;
+    private List<String> columnList;
     private final int changeTableObjectId;
 
-    /**
-     * Creates an object that represents a source table's change table.
-     *
-     * @param captureInstance the logical name of the change capture process
-     * @param sourceTableId the table from which the changes are captured
-     * @param changeTableId the table that contains the changes for the source table
-     * @param changeTableObjectId the numeric identifier for the change table in the source database
-     */
-    public ChangeTable(String captureInstance, TableId sourceTableId, TableId changeTableId, int changeTableObjectId) {
-        this.captureInstance = captureInstance;
+    public ChangeTable(TableId sourceTableId, String captureInstance, int changeTableObjectId, Lsn startLsn, Lsn stopLsn, List<String> columnList) {
+        super();
         this.sourceTableId = sourceTableId;
-        this.changeTableId = changeTableId;
+        this.captureInstance = captureInstance;
         this.changeTableObjectId = changeTableObjectId;
+        this.startLsn = startLsn;
+        this.stopLsn = stopLsn;
+        this.columnList = columnList;
+        this.changeTableId = sourceTableId != null ? new TableId(sourceTableId.getCatalogName(), CDC_SCHEMA, captureInstance + "_CT") : null;
+    }
+
+    public ChangeTable(String captureInstance, int changeTableObjectId, Lsn startLsn, Lsn stopLsn, List<String> columnList) {
+        this(null, captureInstance, changeTableObjectId, startLsn, stopLsn, columnList);
     }
 
     public String getCaptureInstance() {
         return captureInstance;
     }
 
+    public Lsn getStartLsn() {
+        return startLsn;
+    }
+
+    public Lsn getStopLsn() {
+        return stopLsn;
+    }
+
+    public void setStopLsn(Lsn stopLsn) {
+        this.stopLsn = stopLsn;
+    }
+
     public TableId getSourceTableId() {
         return sourceTableId;
+    }
+
+    public List<String> getColumnList() {
+        return columnList;
+    }
+
+    public void setColumnList(List<String> columnList) {
+        this.columnList = columnList;
     }
 
     public TableId getChangeTableId() {
@@ -52,7 +85,33 @@ public class ChangeTable {
                 "captureInstance='" + captureInstance + '\'' +
                 ", sourceTableId=" + sourceTableId +
                 ", changeTableId=" + changeTableId +
+                ", startLsn=" + startLsn +
+                ", stopLsn=" + stopLsn +
+                ", columnList=" + columnList +
                 ", changeTableObjectId=" + changeTableObjectId +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChangeTable that = (ChangeTable) o;
+        return changeTableObjectId == that.changeTableObjectId &&
+                Objects.equals(captureInstance, that.captureInstance) &&
+                Objects.equals(sourceTableId, that.sourceTableId) &&
+                Objects.equals(changeTableId, that.changeTableId) &&
+                Objects.equals(startLsn, that.startLsn) &&
+                Objects.equals(stopLsn, that.stopLsn) &&
+                Objects.equals(columnList, that.columnList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(captureInstance, sourceTableId, changeTableId, startLsn, stopLsn, columnList, changeTableObjectId);
     }
 }
