@@ -1,0 +1,118 @@
+{
+  "job" : {
+    "content" : [ {
+      "reader" : {
+        "parameter" : {
+          "username" : "xxx",
+          "password" : "xxx",
+          "connection": [
+            {
+              "jdbcUrl" : [ "jdbc:jtds:sqlserver://10.10.88.12:1433;DatabaseName=cfhw_erp352sp2" ],
+              "table": ["ep_project"]
+            }
+          ],
+          "column": ["*"],
+          "customSql": "select  * from ep_project",
+          "queryTimeOut": 1000,
+          "requestAccumulatorInterval": 2
+        },
+        "name" : "sqlserverreader"
+      },
+      "writer": {
+        "name": "mysqlwriter",
+        "parameter": {
+          "username": "xxx",
+          "password": "xxx",
+          "batchSize": 1,
+          "connection": [
+            {
+              "jdbcUrl": "jdbc:mysql://10.222.5.114:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8",
+              "table": [
+                "ep_project"
+              ]
+            }
+          ],
+          "preSql": [],
+          "postSql": [],
+          "writeMode": "replace",
+          "updateKey": {"key": ["ProjGUID"]},
+          "column": [
+            "ProjGUID",
+            "BUGUID",
+            "ProjCode",
+            "ProjName",
+            "ProjShortCode",
+            "ProjShortName",
+            "ParentCode",
+            "Level",
+            "IfEnd",
+            "Type",
+            "BuildArea",
+            "OccupyArea",
+            "InnerArea",
+            "SaleArea",
+            "SaleNum",
+            "SalePrice",
+            "SaleAmount",
+            "cbCwztGUID",
+            "BgnSaleDate",
+            "EndSaleDate",
+            "BuildBeginDate",
+            "BuildEndDate",
+            "ProjStatus",
+            "PlanUrl",
+            "ProjInfo",
+            "ApplySys",
+            "TeamProjGUID",
+            "BeginDate",
+            "EndDate",
+            "IsGT",
+            "IsPDAQuery",
+            "RcntQueryNum",
+            "ProjAddress",
+            "Principal",
+            "LevelCode",
+            "IsEndCompany",
+            "Principaler",
+            "PlotName",
+            "SpreadName",
+            "OnceName",
+            "TargetEffigy",
+            "BuildDensity",
+            "Rjl",
+            "Investment",
+            "SaleEarning",
+            "SaleGain",
+            "IRR",
+            "SubsistenceWorth",
+            "IsCbHsdx",
+            "IsEndCbHsdx",
+            "JtWorkPlanGUID",
+            "XmWorkPlanGUID",
+            "BelongAreaGUID",
+            "BelongAreaName",
+            "LevelParentCode",
+            "ParentGUID",
+            "OrderLevelCode"
+          ]
+        }
+      }
+    } ],
+    "setting" : {
+      "restore" : {
+        "isRestore" : false,
+        "isStream" : false
+      },
+      "speed" : {
+        "bytes" : 0,
+        "channel" : 1
+      },
+      "log" : {
+        "isLogger": false,
+        "level" : "info",
+        "path" : "",
+        "pattern":""
+      }
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "job" : {
+    "content" : [ {
+      "reader" : {
+        "parameter" : {
+          "username" : "xxx",
+          "password" : "xxx",
+          "connection": [
+            {
+              "jdbcUrl": ["jdbc:mysql://127.0.0.1:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8"],
+              "table": ["ccc"]
+            }
+          ],
+          "column": ["*"],
+          "customSql": "SELECT a.ID, a.ProductName, b.NAME as ProductType FROM product a join product_type b on a.type = b.ID",
+          "where": "ID < 100",
+          "queryTimeOut": 1000,
+          "requestAccumulatorInterval": 2
+        },
+        "name" : "mysqlreader"
+      },
+      "writer": {
+        "name": "mysqlwriter",
+        "parameter": {
+          "username": "xxx",
+          "password": "xxx",
+          "batchSize": 1,
+          "connection": [
+            {
+              "jdbcUrl": "jdbc:mysql://127.0.0.1:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8",
+              "table": [
+                "product_result"
+              ]
+            }
+          ],
+          "session": [],
+          "preSql": [],
+          "postSql": [],
+          "writeMode": "replace",
+          "updateKey": {"key": ["ID"]},
+          "column": [
+            {
+              "name": "ID",
+              "type": "BIGINT"
+            },
+            {
+              "name": "ProductName",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "ProductType",
+              "type": "VARCHAR"
+            }
+          ]
+        }
+      }
+    } ],
+    "setting" : {
+      "restore" : {
+        "isRestore" : false,
+        "isStream" : false
+      },
+      "errorLimit" : { },
+      "speed" : {
+        "bytes" : 0,
+        "channel" : 1
+      },
+      "log" : {
+        "isLogger": false,
+        "level" : "info",
+        "path" : "",
+        "pattern":""
+      }
+    }
+  }
+}
+
