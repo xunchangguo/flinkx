@@ -7,9 +7,9 @@ English | [中文](README_CH.md)
 
 # Communication
 
-- We are recruiting **Big data platform development engineers**.If you want more information about the position, please add WeChat ID [**ysqwhiletrue**] or email your resume to [sishu@dtstack.com](mailto:sishu@dtstack.com).
+- We are recruiting **Big data platform development engineers**. If you want more information about the position, please add WeChat ID [**ysqwhiletrue**] or email your resume to [sishu@dtstack.com](mailto:sishu@dtstack.com).
 
-- We use [DingTalk](https://www.dingtalk.com/) to communicate,You can search the group number [**30537511**] or scan the QR code below to join the communication group
+- We use [DingTalk](https://www.dingtalk.com/) to communicate, you can search the group number [**30537511**] or scan the QR code below to join the communication group
   
 <div align=center>
   <img src=docs/images/ding.jpg width=300 />
@@ -70,7 +70,7 @@ The following databases are currently supported:
 |                        | FTP            | [doc](docs/offline/reader/ftpreader.md)          | [doc](docs/offline/writer/ftpwriter.md)        |
 |                        | HDFS           | [doc](docs/offline/reader/hdfsreader.md)         | [doc](docs/offline/writer/hdfswriter.md)       |
 |                        | Carbondata     | [doc](docs/offline/reader/carbondatareader.md)   | [doc](docs/offline/writer/carbondatawriter.md) |
-|                        | Stream         | [doc](docs/offline/reader/streamreader.md)       | [doc](docs/offline/writer/carbondatawriter.md) |
+|                        | Stream         | [doc](docs/offline/reader/streamreader.md)       | [doc](docs/offline/writer/streamwriter.md) |
 |                        | Redis          |                                                  | [doc](docs/offline/writer/rediswriter.md)      |
 |                        | Hive           |                                                  | [doc](docs/offline/writer/hivewriter.md)       |
 | Stream Synchronization | Kafka          | [doc](docs/realTime/reader/kafkareader.md)       | [doc](docs/realTime/writer/kafkawriter.md)     |
@@ -80,6 +80,7 @@ The following databases are currently supported:
 |                        | MongoDB Oplog  | [doc](docs/realTime/reader/mongodboplogreader.md)|                                                |
 |                        | PostgreSQL WAL | [doc](docs/realTime/reader/pgwalreader.md)       |                                                |
 |                        | Oracle LogMiner| [doc](docs/realTime/reader/LogMiner.md)      |                                                |
+|                        | Sqlserver CDC| [doc](docs/realTime/reader/sqlservercdc.md)      |                                                |
 
 # Fundamental
 In the underlying implementation, FlinkX relies on Flink, and the data synchronization task will be translated into StreamGraph and executed on Flink. The basic principle is as follows:
