@@ -20,15 +20,24 @@ package com.dtstack.flinkx.sqlservercdc.reader;
 import com.dtstack.flinkx.config.DataTransferConfig;
 import com.dtstack.flinkx.config.ReaderConfig;
 import com.dtstack.flinkx.reader.BaseDataReader;
-import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.sqlservercdc.SqlServerCdcConfigKeys;
 import com.dtstack.flinkx.sqlservercdc.format.SqlserverCdcInputFormatBuilder;
+import com.dtstack.flinkx.util.StringUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.types.Row;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Date: 2019/12/03
+ * Company: www.dtstack.com
+ *
+ * @author tudou
+ */
 public class SqlservercdcReader extends BaseDataReader {
     private String username;
     private String password;
@@ -39,9 +48,8 @@ public class SqlservercdcReader extends BaseDataReader {
     private List<String> tableList;
     private Long pollInterval;
     private String lsn;
-    //
-    private List<MetaColumn> metaColumns;
 
+    @SuppressWarnings("unchecked")
     public SqlservercdcReader(DataTransferConfig config, StreamExecutionEnvironment env) {
         super(config, env);
         ReaderConfig readerConfig = config.getJob().getContent().get(0).getReader();
@@ -51,15 +59,24 @@ public class SqlservercdcReader extends BaseDataReader {
         databaseName = readerConfig.getParameter().getStringVal(SqlServerCdcConfigKeys.KEY_DATABASE_NAME);
         cat = readerConfig.getParameter().getStringVal(SqlServerCdcConfigKeys.KEY_CATALOG);
         pavingData = readerConfig.getParameter().getBooleanVal(SqlServerCdcConfigKeys.KEY_PAVING_DATA, false);
-        tableList = (List<String>) readerConfig.getParameter().getVal(SqlServerCdcConfigKeys.KEY_TABLE_LIST);
+        List<String> tables = (List<String>) readerConfig.getParameter().getVal(SqlServerCdcConfigKeys.KEY_TABLE_LIST);
+
+        if (CollectionUtils.isNotEmpty(tables)) {
+            tableList = new ArrayList<>(tables.size());
+            //兼容[].[]
+            tables.forEach(item -> tableList.add(StringUtil.splitIgnoreQuotaAndJoinByPoint(item)));
+        } else {
+            tableList = Collections.emptyList();
+        }
+
         pollInterval = readerConfig.getLongVal(SqlServerCdcConfigKeys.KEY_POLL_INTERVAL, 1000);
-        lsn = readerConfig.getStringVal(SqlServerCdcConfigKeys.KEY_LSN);
-        metaColumns = MetaColumn.getMetaColumns(readerConfig.getParameter().getColumn());
+        lsn = readerConfig.getParameter().getStringVal(SqlServerCdcConfigKeys.KEY_LSN);
     }
 
     @Override
     public DataStream<Row> readData() {
         SqlserverCdcInputFormatBuilder builder = new SqlserverCdcInputFormatBuilder();
+        builder.setDataTransferConfig(dataTransferConfig);
         builder.setUsername(username);
         builder.setPassword(password);
         builder.setUrl(url);
@@ -70,8 +87,7 @@ public class SqlservercdcReader extends BaseDataReader {
         builder.setRestoreConfig(restoreConfig);
         builder.setPollInterval(pollInterval);
         builder.setLsn(lsn);
-        builder.setMetaColumns(metaColumns);
 
-        return createInput(builder.finish());
+        return createInput(builder.finish(), "sqlserverdcreader");
     }
 }
