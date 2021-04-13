@@ -41,7 +41,6 @@ public class PluginNameConstants {
     public static final String GBASE_READER = "gbasereader";
     public static final String KUDU_READER = "kudureader";
     public static final String BINLOG_READER = "binlogreader";
-    public static final String SQLSERVER_CDC_READER = "sqlservercdcreader";
     public static final String KAFKA09_READER = "kafka09reader";
     public static final String KAFKA10_READER = "kafka10reader";
     public static final String KAFKA11_READER = "kafka11reader";
