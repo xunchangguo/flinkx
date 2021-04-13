@@ -229,7 +229,6 @@ public class LocalTest {
             case PluginNameConstants.KINGBASE_READER : reader = new KingbaseReader(config, env); break;
             case PluginNameConstants.ORACLE_LOG_MINER_READER : reader = new OraclelogminerReader(config, env); break;
             case PluginNameConstants.RESTAPI_READER:  reader = new RestapiReader(config, env); break;
-            case PluginNameConstants.SQLSERVER_CDC_READER:  reader = new SqlservercdcReader(config, env); break;
             default:throw new IllegalArgumentException("Can not find reader by name:" + readerName);
         }
 
