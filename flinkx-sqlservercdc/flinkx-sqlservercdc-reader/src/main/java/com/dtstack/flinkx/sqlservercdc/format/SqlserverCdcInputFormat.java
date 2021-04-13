@@ -17,17 +17,15 @@
  */
 package com.dtstack.flinkx.sqlservercdc.format;
 
-import avro.shaded.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.dtstack.flinkx.inputformat.BaseRichInputFormat;
-import com.dtstack.flinkx.reader.MetaColumn;
 import com.dtstack.flinkx.restore.FormatState;
 import com.dtstack.flinkx.sqlservercdc.Lsn;
-import com.dtstack.flinkx.sqlservercdc.SqlServerCconnection;
+import com.dtstack.flinkx.sqlservercdc.SqlServerCdcUtil;
 import com.dtstack.flinkx.sqlservercdc.TxLogPosition;
 import com.dtstack.flinkx.sqlservercdc.listener.SqlServerCdcListener;
 import com.dtstack.flinkx.util.ClassUtil;
 import com.dtstack.flinkx.util.ExceptionUtil;
-import com.dtstack.flinkx.util.StringUtil;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flink.core.io.GenericInputSplit;
@@ -35,13 +33,26 @@ import org.apache.flink.core.io.InputSplit;
 import org.apache.flink.types.Row;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import static com.dtstack.flinkx.sqlservercdc.SqlServerCconnection.DRIVER;
+import static com.dtstack.flinkx.sqlservercdc.SqlServerCdcUtil.DRIVER;
 
+/**
+ * Date: 2019/12/03
+ * Company: www.dtstack.com
+ *
+ * @author tudou
+ */
 public class SqlserverCdcInputFormat extends BaseRichInputFormat {
     protected String username;
     protected String password;
@@ -52,9 +63,8 @@ public class SqlserverCdcInputFormat extends BaseRichInputFormat {
     protected String cat;
     protected long pollInterval;
     protected String lsn;
-    private List<MetaColumn> metaColumns;
 
-    private SqlServerCconnection conn;
+    private Connection conn;
     private TxLogPosition logPosition;
 
     private transient BlockingQueue<Map<String, Object>> queue;
@@ -67,7 +77,7 @@ public class SqlserverCdcInputFormat extends BaseRichInputFormat {
         executor = new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-        queue = new LinkedBlockingDeque<>(8192);
+        queue = new SynchronousQueue<>(false);
 
         if (inputSplit.getSplitNumber() != 0) {
             LOG.info("sqlServer cdc openInternal split number:{} abort...", inputSplit.getSplitNumber());
@@ -77,26 +87,16 @@ public class SqlserverCdcInputFormat extends BaseRichInputFormat {
         LOG.info("sqlServer cdc openInternal split number:{} start...", inputSplit.getSplitNumber());
         try {
             ClassUtil.forName(DRIVER, getClass().getClassLoader());
-            conn = new SqlServerCconnection(username, password, url, databaseName);
+            conn = SqlServerCdcUtil.getConnection(url, username, password);
             conn.setAutoCommit(false);
-            conn.execute("use " + databaseName);
-            if(!conn.checkEnabledCdcDatabase(databaseName)){
-                LOG.error("{} is not enable sqlServer CDC", databaseName);
-                throw new UnsupportedOperationException(databaseName + " is not enable sqlServer CDC ");
-            }
+            SqlServerCdcUtil.changeDatabase(conn, databaseName);
 
-            Set<String> unEnabledCdcTables = conn.checkUnEnabledCdcTables(tableList);
-            if(CollectionUtils.isNotEmpty(unEnabledCdcTables)){
-                String tables = unEnabledCdcTables.toString();
-                LOG.error("{} is not enable sqlServer CDC", tables);
-                throw new UnsupportedOperationException(tables + " is not enable sqlServer CDC ");
-            }
             if(StringUtils.isNotBlank(lsn)){
                 logPosition = TxLogPosition.valueOf(Lsn.valueOf(lsn));
             }else if(formatState != null && formatState.getState() != null){
                 logPosition = (TxLogPosition)formatState.getState();
             }else{
-                logPosition = TxLogPosition.valueOf(conn.getMaxLsn());
+                logPosition = TxLogPosition.valueOf(SqlServerCdcUtil.getMaxLsn(conn));
             }
 
             executor.submit(new SqlServerCdcListener(this));
@@ -116,17 +116,7 @@ public class SqlserverCdcInputFormat extends BaseRichInputFormat {
             if(map.size() == 1){
                 throw new IOException((String) map.get("e"));
             }else{
-                if(CollectionUtils.isEmpty(metaColumns)){
-                    row = Row.of(map);
-                }else{
-                    row = new Row(metaColumns.size());
-                    for (int i = 0; i < metaColumns.size(); i++) {
-                        MetaColumn metaColumn = metaColumns.get(i);
-                        Object value = map.get(metaColumn.getName());
-                        Object obj = StringUtil.string2col(String.valueOf(value), metaColumn.getType(), metaColumn.getTimeFormat());
-                        row.setField(i , obj);
-                    }
-                }
+                row = Row.of(map);
             }
         } catch (InterruptedException e) {
             LOG.error("takeEvent interrupted error:{}", ExceptionUtil.getErrorMessage(e));
@@ -200,7 +190,7 @@ public class SqlserverCdcInputFormat extends BaseRichInputFormat {
         return pollInterval;
     }
 
-    public SqlServerCconnection getConn() {
+    public Connection getConn() {
         return conn;
     }
 
@@ -210,13 +200,5 @@ public class SqlserverCdcInputFormat extends BaseRichInputFormat {
 
     public TxLogPosition getLogPosition() {
         return logPosition;
-    }
-
-    public List<MetaColumn> getMetaColumns() {
-        return metaColumns;
-    }
-
-    public void setMetaColumns(List<MetaColumn> metaColumns) {
-        this.metaColumns = metaColumns;
     }
 }

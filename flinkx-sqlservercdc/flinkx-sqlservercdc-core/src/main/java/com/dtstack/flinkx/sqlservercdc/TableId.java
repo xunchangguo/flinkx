@@ -5,27 +5,42 @@
  */
 package com.dtstack.flinkx.sqlservercdc;
 
+/**
+ * Date: 2019/12/03
+ * Company: www.dtstack.com
+ * <p>
+ * this class is copied from (https://github.com/debezium/debezium).
+ * but there are some different from the origin.
+ *
+ * @author tudou
+ */
 public class TableId implements Comparable<TableId> {
+
+    public static final int FIRST_PART = 0;
+    public static final int SECOND_PART = 1;
+    public static final int THIRD_PART = 2;
 
     /**
      * Parse the supplied string, extracting up to the first 3 parts into a TableID.
      *
-     * @param parts the parts of the identifier; may not be null
-     * @param numParts the number of parts to use for the table identifier
+     * @param parts                  the parts of the identifier; may not be null
+     * @param numParts               the number of parts to use for the table identifier
      * @param useCatalogBeforeSchema {@code true} if the parsed string contains only 2 items and the first should be used as
-     *            the catalog and the second as the table name, or {@code false} if the first should be used as the schema and the
-     *            second as the table name
+     *                               the catalog and the second as the table name, or {@code false} if the first should be used as the schema and the
+     *                               second as the table name
      * @return the table ID, or null if it could not be parsed
      */
     protected static TableId parse(String[] parts, int numParts, boolean useCatalogBeforeSchema) {
-        if (numParts == 0) {
+        if (numParts == FIRST_PART) {
             return null;
         }
-        if (numParts == 1) {
+
+        if (numParts == SECOND_PART) {
             // table only
             return new TableId(null, null, parts[0]);
         }
-        if (numParts == 2) {
+
+        if (numParts == THIRD_PART) {
             if (useCatalogBeforeSchema) {
                 // catalog & table only
                 return new TableId(parts[0], null, parts[1]);
@@ -33,6 +48,7 @@ public class TableId implements Comparable<TableId> {
             // schema & table only
             return new TableId(null, parts[0], parts[1]);
         }
+
         // catalog, schema & table
         return new TableId(parts[0], parts[1], parts[2]);
     }
@@ -59,35 +75,16 @@ public class TableId implements Comparable<TableId> {
         this.id = tableId(this.catalogName, this.schemaName, this.tableName);
     }
 
-    /**
-     * Get the name of the JDBC catalog.
-     *
-     * @return the catalog name, or null if the table does not belong to a catalog
-     */
-    public String catalog() {
+    public String getCatalogName() {
         return catalogName;
     }
 
-    /**
-     * Get the name of the JDBC schema.
-     *
-     * @return the JDBC schema name, or null if the table does not belong to a JDBC schema
-     */
-    public String schema() {
+    public String getSchemaName() {
         return schemaName;
     }
 
-    /**
-     * Get the name of the table.
-     *
-     * @return the table name; never null
-     */
-    public String table() {
+    public String getTableName() {
         return tableName;
-    }
-
-    public String identifier() {
-        return id;
     }
 
     @Override
@@ -120,7 +117,7 @@ public class TableId implements Comparable<TableId> {
 
     @Override
     public String toString() {
-        return identifier();
+        return id;
     }
 
     /**
@@ -173,7 +170,7 @@ public class TableId implements Comparable<TableId> {
         }
 
         if (identifierPart.isEmpty()) {
-            return new StringBuilder().append(quotingChar).append(quotingChar).toString();
+            return String.valueOf(quotingChar) + quotingChar;
         }
 
         if (identifierPart.charAt(0) != quotingChar && identifierPart.charAt(identifierPart.length() - 1) != quotingChar) {
@@ -185,7 +182,7 @@ public class TableId implements Comparable<TableId> {
     }
 
     private static String repeat(char quotingChar) {
-        return new StringBuilder().append(quotingChar).append(quotingChar).toString();
+        return String.valueOf(quotingChar) + quotingChar;
     }
 
     public TableId toLowercase() {

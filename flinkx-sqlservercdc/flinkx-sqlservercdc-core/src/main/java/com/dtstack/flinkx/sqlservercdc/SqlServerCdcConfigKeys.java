@@ -17,6 +17,12 @@
  */
 package com.dtstack.flinkx.sqlservercdc;
 
+/**
+ * Date: 2019/12/03
+ * Company: www.dtstack.com
+ *
+ * @author tudou
+ */
 public class SqlServerCdcConfigKeys {
 
     public static final String KEY_USER_NAME = "username";
